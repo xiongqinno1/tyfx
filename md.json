@@ -24,7 +24,11 @@
       "url": "http://mzjk.top",
       "name": "西夏"
     },
-    {
+	{
+      "url": "https://git.acwing.com/tyfx/html/-/raw/main/fty.json",
+      "name": "备用"
+    },
+	{
       "url": "http://meowtv.top/tv",
       "name": "猫影视"
     }
