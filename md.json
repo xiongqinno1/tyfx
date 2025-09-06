@@ -5,7 +5,7 @@
       "name": "讴歌"
     },
     {
-      "url": "https://6296.kstore.vip/facat.json",
+      "url": "http://hello.肥猫。com",
       "name": "肥猫线路"
     },
     {
@@ -25,10 +25,6 @@
       "name": "莱尼丝"
     },
 	{
-      "url": "http://lan.tyfx.dpdns.org:20003/svip/svip.json",
-      "name": "拾光"
-    },
- 	{
       "url": "https://git.acwing.com/tyfx/html/-/raw/main/fty.json",
       "name": "备用"
     },
@@ -38,3 +34,4 @@
     }
   ]
 }
+
