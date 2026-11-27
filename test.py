@@ -9,7 +9,7 @@ OUTPUT_DIR = "output"
 
 files = [
     ("http://www.xn--sss604efuw.net/tv/",
-     os.path.join(OUTPUT_DIR, "ftr.json"))
+     os.path.join(OUTPUT_DIR, "ftr.json")),
     ("http://xn--z7x900a.net/tv",
      os.path.join(OUTPUT_DIR, "fm.json")),
 ]
