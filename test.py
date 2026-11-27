@@ -9,10 +9,9 @@ OUTPUT_DIR = "output"
 
 files = [
     ("http://www.xn--sss604efuw.net/tv/",
-     os.path.join(OUTPUT_DIR, "ftr.json")),
+     os.path.join(OUTPUT_DIR, "ftr.json"))
     ("http://xn--z7x900a.net/tv",
      os.path.join(OUTPUT_DIR, "fm.json")),
-    
 ]
 
 
@@ -26,25 +25,22 @@ def http_get(url):
         return resp.read()
 
 
-# 匹配整个 "spider": "https://....;md5;xxxx"
-#  group(1) = 完整 URL（含 ;md5;xxxx）
-#  group(2) = URL 去掉 ;md5; 后的真实下载地址
-#  group(3) = 文件名（URL 最后一段）
-#  group(4) = md5 值
+# group(1) = 完整字段值 https://.../文件名;md5;xxxx
+# group(2) = 文件名
+# group(3) = md5 值
 SPIDER_RE = re.compile(
     r'"spider"\s*:\s*"(https?://[^";]+?/([^/";]+?);md5;([^"]+))"'
 )
-# 如果 URL 里可能有 ";" 出现在路径里，这种简单正则已经够用
 
 
 def process_json_file(json_path):
     """
-    读入已写好的 JSON 文件：
-      1. 扫描 "spider": "https://.../文件名;md5;xxx"
-      2. 从完整 URL 中去掉 ;md5;xxx 得到 real_url
-      3. 下载 real_url -> base_dir/文件名
-      4. 替换成 "spider":"./文件名;md5;xxx"
-    然后写回。
+    1. 读 JSON
+    2. 找 "spider": "https://.../文件名;md5;xxxx"
+    3. real_url = 完整URL去掉 ;md5;xxxx
+    4. 下载 real_url -> base_dir/文件名
+    5. 替换为 "spider":"./文件名;md5;xxxx"
+    6. 回写
     """
     base_dir = os.path.dirname(json_path) or "."
 
@@ -55,16 +51,13 @@ def process_json_file(json_path):
 
     def repl(m):
         nonlocal changed
-        full_url = m.group(1)      # https://.../文件名;md5;xxxx
-        filename = m.group(3)      # 文件名
-        md5 = m.group(4)           # md5 值
+        full_url = m.group(1)
+        filename = m.group(2)
+        md5 = m.group(3)
 
-        # 去掉 ;md5;xxxx 得到真实下载 URL
         real_url = full_url.split(";md5;")[0]
-
         save_path = os.path.join(base_dir, filename)
 
-        # 下载文件（替换之前必须先下）
         try:
             raw = http_get(real_url)
             with open(save_path, "wb") as f2:
@@ -72,7 +65,7 @@ def process_json_file(json_path):
             log(f"  spider 文件已下载：{save_path}，大小 {len(raw)} 字节")
         except Exception as e:
             log(f"  spider 文件下载失败 {real_url}: {e}")
-            return m.group(0)   # 下载失败保留原样
+            return m.group(0)
 
         changed = True
         return f'"spider":"./{filename};md5;{md5}"'
@@ -88,7 +81,6 @@ def process_json_file(json_path):
 def download(url, save_path):
     raw = http_get(url)
 
-    # 1. 直接是 JSON
     if raw.lstrip()[:1] in (b'{', b'['):
         json_text = raw.decode('utf-8', errors='ignore')
         with open(save_path, 'w', encoding='utf-8') as f:
@@ -97,7 +89,6 @@ def download(url, save_path):
         process_json_file(save_path)
         return
 
-    # 2. 图片伪装：找 8位字母数字 + ** 标记
     text = raw.decode('latin-1', errors='ignore')
     match = re.search(r'[A-Za-z0-9]{8}\*\*', text)
 
@@ -114,7 +105,6 @@ def download(url, save_path):
         process_json_file(save_path)
         return
 
-    # 3. Base64 解码出 JSON
     b64_str = text[match.end():].strip()
     padding = len(b64_str) % 4
     if padding:
